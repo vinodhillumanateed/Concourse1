@@ -5,13 +5,14 @@ resource_types:
   type: docker-image
   source:
     repository: teliaoss/github-pr-resource
+    tag: latest
 
 resources:
-- name: maven-examples
+- name: sc-suite-staff
   type: pull-request
-  check_every: 10s
+  check_every: 1m
   source:
-    repository: vinodhaws3636/maven-examples
+    repository: illuminateeducation/sc-suite-staff
     access_token: ((github-access-token))
 
 
@@ -19,12 +20,12 @@ resources:
 jobs:
 - name: compile-run-unittest
   plan:
-  - get: maven-examples
+  - get: sc-suite-staff
     trigger: true
     version: every
-  - put: maven-examples
+  - put: sc-suite-staff
     params:
-      path: maven-examples
+      path: sc-suite-staff
       status: pending
   - task: build
     config:
@@ -32,10 +33,10 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: maven
-          tag: 3.6.3-jdk-11
+          repository: Ant
+          tag: 3.6.3-jdk-17
       inputs:
-      - name: maven-examples
+      - name: sc-suite-staff
       outputs:
       - name: build_out
       params:
@@ -45,17 +46,17 @@ jobs:
        args:
        - -exec
        - |
-          cd maven-examples/maven-unit-test/
-          mvn clean install
+          cd sc-suite-staff/tree/master/java/com/schoolcity/stars/utility
+          "utility/*/*.java"
   on_success:
     do:
-    - put: maven-examples
+    - put: sc-suite-staff
       params:
-        path: maven-examples
+        path: sc-suite-staff
         status: success
   on_failure:
     do:
-    - put: maven-examples
+    - put: sc-suite-staff
       params:
-        path: maven-examples
+        path: sc-suite-staff
         status: failure
